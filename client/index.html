@@ -73,14 +73,53 @@
 
 			console.log('unsubscribe')
 
-			const worker = await navigator.serviceWorker.ready
+			try {
+				const worker = await navigator.serviceWorker.ready
 
-			const subscription = await worker.pushManager.getSubscription()
+				const subscription = await worker.pushManager.getSubscription()
 
-			await subscription.unsubscribe()
+				await subscription.unsubscribe()
 
-			subscribe.classList.remove('btn-off')
-			unsubscribe.classList.add('btn-off')
+				alert('Obuna o\'chirildi (')
+
+				subscribe.classList.remove('btn-off')
+				unsubscribe.classList.add('btn-off')
+			} catch(e) {
+				alert('Obuna allaqachon o\'chirilgan!')
+				console.log(e.message)
+			}
+
+		})
+
+		form.addEventListener('submit', async (evt) => {
+
+			evt.preventDefault()
+
+			try {
+
+				const broadcastRes = await fetch('http://localhost:3001/broadcast', {
+					method: 'post',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						text: form__text.value
+					})
+				})
+
+				const data = await broadcastRes.json()
+
+				if(data.status === 200) {
+
+					form.reset()
+
+					alert('Xabar muvaffaqiyatli yuborildi.')
+
+				}
+
+			} catch(e) {
+				console.log(e)
+			}			
 
 		})
 

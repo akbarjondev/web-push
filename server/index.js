@@ -40,7 +40,27 @@ app.post('/subscribe', (req, res) => {
 
 		subscribers.push(subscriber)
 
-		pushManager.sendNotification(subscriber, 'Obuna yoqildi!')
+		res.send({
+			status: 200
+		}).end()
+
+	} catch(e) {
+		console.log(e)
+	}
+
+})
+
+app.post('/broadcast', (req, res) => {
+
+	try {
+
+		const { text } = req.body
+
+		subscribers.map( element => {
+
+			pushManager.sendNotification(element, text)
+
+		})
 		
 		res.send({
 			status: 200
