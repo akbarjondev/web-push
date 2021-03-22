@@ -4,11 +4,28 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Service Worker</title>
+	<style>
+
+		.btn-off {
+			/*display: none;*/
+		}
+
+  </style>	
 </head>
 <body>
 
-	<button id="subscribe">Subscribe</button>
-	<button id="unsubscribe">Unsubscribe</button>
+	<button id="subscribe">Subscribe 🔔</button>
+	<button class="btn-off" id="unsubscribe">Unsubscribe 🔕</button>
+
+	<h3 class="heading">Broadcast</h3>
+	<form class="form" id="form">
+		<div class="form__group">
+			<textarea class="form__text" id="form__text" cols="30" rows="10"></textarea>
+		</div>
+		<div class="form__group">
+			<button class="form__submit" type="submit">Roaring...</button>
+		</div>
+	</form>
 
 	<script>
 
@@ -23,12 +40,32 @@
 
 			const worker = await navigator.serviceWorker.ready
 
+			const publicKeyRes = await fetch('http://localhost:3001/publickey')
+			const serverRes = await publicKeyRes.json()
+
 			const pushManager = await worker.pushManager.subscribe({
 				userVisibleOnly: true,
-				applicationServerKey: "BBrSLCPyECboR8i2adR0VZ0qbIpY96Is0NSgSfRxZ4eYscNubEAbIVl14RbR68DTpqzznRETBDlPamZZzZ9s4Tw"
+				applicationServerKey: serverRes.publicKey
 			})
 
-			console.log(JSON.stringify(pushManager, null, 4))
+			const sendSubscriberObj = await fetch('http://localhost:3001/subscribe', {
+				method: 'post',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					subscriber: pushManager
+				})
+
+			})
+
+			const subscribeRes = await sendSubscriberObj.json()
+
+			if(subscribeRes.status === 200) {
+				subscribe.classList.add('btn-off')
+				unsubscribe.classList.remove('btn-off')
+				alert('Siz bizga obuna bo\'ldingiz 🎉')
+			}
 
 		})
 
@@ -41,6 +78,9 @@
 			const subscription = await worker.pushManager.getSubscription()
 
 			await subscription.unsubscribe()
+
+			subscribe.classList.remove('btn-off')
+			unsubscribe.classList.add('btn-off')
 
 		})
 
