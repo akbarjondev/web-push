@@ -12,10 +12,36 @@
 
 	<script>
 
-		subscribe.addEventListener('click', () => {
+		addEventListener('load', async () => {
 
-			
-			
+			await navigator.serviceWorker.register('./serviceWoker.js')
+		})
+
+		subscribe.addEventListener('click', async () => {
+
+			console.log('subscribe')
+
+			const worker = await navigator.serviceWorker.ready
+
+			const pushManager = await worker.pushManager.subscribe({
+				userVisibleOnly: true,
+				applicationServerKey: "BBrSLCPyECboR8i2adR0VZ0qbIpY96Is0NSgSfRxZ4eYscNubEAbIVl14RbR68DTpqzznRETBDlPamZZzZ9s4Tw"
+			})
+
+			console.log(JSON.stringify(pushManager, null, 4))
+
+		})
+
+		unsubscribe.addEventListener('click', async () => {
+
+			console.log('unsubscribe')
+
+			const worker = await navigator.serviceWorker.ready
+
+			const subscription = await worker.pushManager.getSubscription()
+
+			await subscription.unsubscribe()
+
 		})
 
   </script>
